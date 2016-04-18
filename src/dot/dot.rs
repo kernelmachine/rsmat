@@ -39,10 +39,9 @@ pub fn matrix_dot( lhs : &MatView<f64>, rhs: &MatView<f64>,df : &mut MatViewMut<
 
 pub fn matrix_dot_rayon(lhs: &MatView<f64>, rhs : &MatView<f64>,  df : &mut MatViewMut<f64>){
 
-    let ((m, k), (k2, n)) = (lhs.dim(), rhs.dim());
-    debug_assert_eq!(k, k2);
+    let ((m, k1), (k2, n)) = (lhs.dim(), rhs.dim());
+    debug_assert_eq!(k1, k2);
     if m <= THRESHOLD && n <= THRESHOLD {
-
         matrix_dot(lhs,rhs,df);
         return;
     }
@@ -68,10 +67,10 @@ pub fn matrix_dot_rayon(lhs: &MatView<f64>, rhs : &MatView<f64>,  df : &mut MatV
 
 pub fn matrix_dot_simple_parallel(lhs: &MatView<f64>, rhs : &MatView<f64>,  df : &mut MatViewMut<f64>){
 
-    let ((m, k), (k2, n)) = (lhs.dim(), rhs.dim());
+    let ((m, k1), (k2, n)) = (lhs.dim(), rhs.dim());
 
 
-    debug_assert_eq!(k, k2);
+    debug_assert_eq!(k1, k2);
     if m <= THRESHOLD && n <= THRESHOLD {
 
         matrix_dot(lhs,rhs,df);
