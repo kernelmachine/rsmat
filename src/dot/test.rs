@@ -39,9 +39,8 @@ mod tests {
         assert!(c.all_close(&OwnedArray::zeros((10,20)), 0.01) == false)
     }
 
-
-    pub const OUTER_SIZE : usize = 100;
     pub const INNER_SIZE : usize = 100;
+    pub const OUTER_SIZE : usize = 100;
 
     #[bench]
     fn bench_dot(b: &mut Bencher) {
