@@ -12,6 +12,7 @@ pub type VectorView<'a,A> = ArrayView<'a,A, Ix>;
 pub type MatView<'a,A> = ArrayView<'a,A,(Ix,Ix)>;
 pub type MatViewMut<'a,A> = ArrayViewMut<'a,A,(Ix,Ix)>;
 
+pub const THRESHOLD : usize = 50;
 
 pub fn vector_dot(lhs : VectorView<f64>,rhs: VectorView<f64>) -> f64 {
     debug_assert_eq!(rhs.len(), lhs.len());
@@ -40,20 +41,20 @@ pub fn matrix_dot_rayon(lhs: &MatView<f64>, rhs : &MatView<f64>,  df : &mut MatV
 
     let ((m, k), (k2, n)) = (lhs.dim(), rhs.dim());
     debug_assert_eq!(k, k2);
-    if m <= 5 && n <= 5 {
+    if m <= THRESHOLD && n <= THRESHOLD {
 
         matrix_dot(lhs,rhs,df);
         return;
     }
     else{
-        if m > 5 {
+        if m > THRESHOLD {
            let mid = m / 2;
            let (a0, a1) = lhs.view().split_at(Axis(0), mid);
            let (mut df0, mut df1) = df.view_mut().split_at(Axis(0), mid);
            rayon::join(|| matrix_dot_rayon(&a0, rhs, &mut df0),
                        || matrix_dot_rayon(&a1, rhs, &mut df1));
 
-       } else if n > 5 {
+       } else if n > THRESHOLD {
            let mid = n / 2;
            let (b0, b1) = rhs.view().split_at(Axis(1), mid);
            let (mut df0, mut df1) = df.view_mut().split_at(Axis(1), mid);
@@ -71,19 +72,19 @@ pub fn matrix_dot_simple_parallel(lhs: &MatView<f64>, rhs : &MatView<f64>,  df :
 
 
     debug_assert_eq!(k, k2);
-    if m <= 5 && n <= 5 {
+    if m <= THRESHOLD && n <= THRESHOLD {
 
         matrix_dot(lhs,rhs,df);
         return;
     }
     else{
-        if m > 5 {
+        if m > THRESHOLD {
            let mid = m / 2;
            let (a0, a1) = lhs.view().split_at(Axis(0), mid);
            let (mut df0, mut df1) = df.view_mut().split_at(Axis(0), mid);
            simple_parallel::both((&a0, rhs, &mut df0),(&a1, rhs, &mut df1), |(x,y,z)| matrix_dot_simple_parallel(x,y,z));
 
-       } else if n > 5 {
+       } else if n > THRESHOLD {
            let mid = n / 2;
            let (b0, b1) = rhs.view().split_at(Axis(1), mid);
            let (mut df0, mut df1) = df.view_mut().split_at(Axis(1), mid);

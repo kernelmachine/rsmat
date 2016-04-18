@@ -8,6 +8,7 @@ mod tests {
     use test::Bencher;
 
 
+
     #[test]
     fn test_rayon(){
         let mut c0 = OwnedArray::zeros((10,10));
@@ -40,21 +41,23 @@ mod tests {
 
 
 
-    #[bench]
-    fn bench_dot(b: &mut Bencher) {
-        let mut c = OwnedArray::zeros((10,10));
-        let x = OwnedArray::random((10,10), Range::new(0.,10.));
-        let y = OwnedArray::random((10,10), Range::new(0.,10.));
-        b.iter(|| {
-            matrix_dot(&x.view(), &y.view(),&mut c.view_mut())
-        });
-    }
+    // #[bench]
+    // fn bench_dot(b: &mut Bencher) {
+    //     let mut c = OwnedArray::zeros((1000,1000));
+    //     let x = OwnedArray::random((1000,1000), Range::new(0.,10.));
+    //     let y = OwnedArray::random((1000,1000), Range::new(0.,10.));
+    //     b.iter(|| {
+    //         matrix_dot(&x.view(), &y.view(),&mut c.view_mut())
+    //     });
+    // }
+
+    pub const SIZE : usize = 100;
 
     #[bench]
     fn bench_dot_rayon(b: &mut Bencher) {
-        let mut c = OwnedArray::zeros((10,10));
-        let x = OwnedArray::random((10,10), Range::new(0.,10.));
-        let y = OwnedArray::random((10,10), Range::new(0.,10.));
+        let mut c = OwnedArray::zeros((SIZE,SIZE));
+        let x = OwnedArray::random((SIZE,SIZE), Range::new(0.,10.));
+        let y = OwnedArray::random((SIZE,SIZE), Range::new(0.,10.));
         b.iter(|| {
             matrix_dot_rayon(&x.view(), &y.view(),&mut c.view_mut())
         });
@@ -62,9 +65,9 @@ mod tests {
 
     #[bench]
     fn bench_dot_simple_parallel(b: &mut Bencher) {
-        let mut c = OwnedArray::zeros((10,10));
-        let x = OwnedArray::random((10,10), Range::new(0.,10.));
-        let y = OwnedArray::random((10,10), Range::new(0.,10.));
+        let mut c = OwnedArray::zeros((SIZE,SIZE));
+        let x = OwnedArray::random((SIZE,SIZE), Range::new(0.,10.));
+        let y = OwnedArray::random((SIZE,SIZE), Range::new(0.,10.));
         b.iter(|| {
             matrix_dot_simple_parallel(&x.view(), &y.view(),&mut c.view_mut())
         });
