@@ -79,7 +79,7 @@ pub fn matrix_dot_simple_parallel(left: &MatView<f64>, right : &MatView<f64>,  i
     let (k2, n) = right.dim();
 
 
-    debug_assert_eq!(k1, k2);
+    assert_eq!(k1, k2);
     if m <= BLOCKSIZE && n <= BLOCKSIZE {
         matrix_dot(left,right,init);
         return;
