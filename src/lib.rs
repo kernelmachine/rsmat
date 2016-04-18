@@ -9,4 +9,4 @@ extern crate test;
 extern crate rayon;
 extern crate simple_parallel;
 
-pub mod util;
+pub mod dot;
