@@ -11,17 +11,17 @@ mod tests {
 
     #[test]
     fn test_rayon(){
-        let mut c0 = OwnedArray::zeros((10,10));
+        let mut c0 = OwnedArray::zeros((10,20));
+        let mut c = OwnedArray::zeros((10,20));
 
-        let mut c = OwnedArray::zeros((10,10));
         let x = OwnedArray::random((10,5), Range::new(0.,10.));
-        let y = OwnedArray::random((5,10), Range::new(0.,10.));
+        let y = OwnedArray::random((5,20), Range::new(0.,10.));
 
         matrix_dot(&x.view(), &y.view(),&mut c0.view_mut());
         matrix_dot_rayon(&x.view(), &y.view(),&mut c.view_mut());
 
         assert!(c == c0);
-        assert!(c.all_close(&OwnedArray::zeros((10,10)), 0.01) == false)
+        assert!(c.all_close(&OwnedArray::zeros((10,20)), 0.01) == false)
     }
 
     #[test]
@@ -40,24 +40,25 @@ mod tests {
     }
 
 
+    pub const OUTER_SIZE : usize = 100;
+    pub const INNER_SIZE : usize = 100;
 
-    // #[bench]
-    // fn bench_dot(b: &mut Bencher) {
-    //     let mut c = OwnedArray::zeros((1000,1000));
-    //     let x = OwnedArray::random((1000,1000), Range::new(0.,10.));
-    //     let y = OwnedArray::random((1000,1000), Range::new(0.,10.));
-    //     b.iter(|| {
-    //         matrix_dot(&x.view(), &y.view(),&mut c.view_mut())
-    //     });
-    // }
+    #[bench]
+    fn bench_dot(b: &mut Bencher) {
+        let mut c = OwnedArray::zeros((OUTER_SIZE,OUTER_SIZE));
+        let x = OwnedArray::random((OUTER_SIZE,INNER_SIZE), Range::new(0.,10.));
+        let y = OwnedArray::random((INNER_SIZE,OUTER_SIZE), Range::new(0.,10.));
+        b.iter(|| {
+            matrix_dot(&x.view(), &y.view(),&mut c.view_mut())
+        });
+    }
 
-    pub const SIZE : usize = 100;
 
     #[bench]
     fn bench_dot_rayon(b: &mut Bencher) {
-        let mut c = OwnedArray::zeros((SIZE,SIZE));
-        let x = OwnedArray::random((SIZE,SIZE), Range::new(0.,10.));
-        let y = OwnedArray::random((SIZE,SIZE), Range::new(0.,10.));
+        let mut c = OwnedArray::zeros((OUTER_SIZE,OUTER_SIZE));
+        let x = OwnedArray::random((OUTER_SIZE,INNER_SIZE), Range::new(0.,10.));
+        let y = OwnedArray::random((INNER_SIZE,OUTER_SIZE), Range::new(0.,10.));
         b.iter(|| {
             matrix_dot_rayon(&x.view(), &y.view(),&mut c.view_mut())
         });
@@ -65,9 +66,9 @@ mod tests {
 
     #[bench]
     fn bench_dot_simple_parallel(b: &mut Bencher) {
-        let mut c = OwnedArray::zeros((SIZE,SIZE));
-        let x = OwnedArray::random((SIZE,SIZE), Range::new(0.,10.));
-        let y = OwnedArray::random((SIZE,SIZE), Range::new(0.,10.));
+        let mut c = OwnedArray::zeros((OUTER_SIZE,OUTER_SIZE));
+        let x = OwnedArray::random((OUTER_SIZE,INNER_SIZE), Range::new(0.,10.));
+        let y = OwnedArray::random((INNER_SIZE,OUTER_SIZE), Range::new(0.,10.));
         b.iter(|| {
             matrix_dot_simple_parallel(&x.view(), &y.view(),&mut c.view_mut())
         });
