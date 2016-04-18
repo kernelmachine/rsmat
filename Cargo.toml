@@ -1,0 +1,11 @@
+[package]
+name = "rsmat"
+version = "0.1.0"
+authors = ["sgururangan-r7 <sgururangan@rapid7.com>"]
+
+[dependencies]
+ndarray = "0.5.0"
+rand = "*"
+ndarray-rand="*"
+rayon="*"
+simple_parallel="*"
