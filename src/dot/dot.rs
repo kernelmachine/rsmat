@@ -5,35 +5,27 @@ extern crate ndarray_rand;
 
 use ndarray::{Axis, ArrayView,ArrayViewMut, Ix};
 use rayon;
-use rayon::prelude::*;
 use simple_parallel;
 
 // various array views for divide-and-conquering
-pub type VectorView<'a,A> = ArrayView<'a,A, Ix>;
 pub type MatView<'a,A> = ArrayView<'a,A,(Ix,Ix)>;
 pub type MatViewMut<'a,A> = ArrayViewMut<'a,A,(Ix,Ix)>;
 
 
-// basic vector dot product
-pub fn vector_dot(left : VectorView<f64>,right:  VectorView<f64>) -> f64 {
-    unsafe{
-        (0..right.len()).fold(0.0, |x, y| x + *right.uget(y) * *left.uget(y) )
-    }
 
-}
 
 // basic matrix multiplication
 pub fn matrix_dot( left : &MatView<f64>, right: &MatView<f64>, init : &mut MatViewMut<f64>){
-    let (m,k1)= left.dim();
-    let (k2,n) = right.dim();
-    assert_eq!(k1, k2);
+    let m = left.shape()[0];
+    let n = right.shape()[1];
+    let res = left.to_owned().dot(&right.to_owned());
     for ix in 0..m{
+        let mut init_row = init.row_mut(ix);
+        let res_row = res.row(ix);
         for jx in 0..n{
-            let left_row = left.row(ix);
-            let right_col = right.column(jx);
             unsafe{
-                let mut value = init.uget_mut((ix,jx));
-                *value += vector_dot(left_row, right_col);
+                let mut value = init_row.uget_mut(jx);
+                *value += *res_row.uget(jx);
             }
         }
     }
@@ -41,7 +33,7 @@ pub fn matrix_dot( left : &MatView<f64>, right: &MatView<f64>, init : &mut MatVi
 
 
 
-pub const BLOCKSIZE : usize = 50;
+pub const BLOCKSIZE : usize = 64;
 
 // parallelized matrix multiplication via rayon.
 pub fn matrix_dot_rayon(left: &MatView<f64>, right : &MatView<f64>,  init : &mut MatViewMut<f64>){
