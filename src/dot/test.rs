@@ -17,7 +17,7 @@ mod tests {
         let x = OwnedArray::random((10,5), Range::new(0.,10.));
         let y = OwnedArray::random((5,20), Range::new(0.,10.));
 
-        matrix_dot(&x.view(), &y.view(),&mut c0.view_mut());
+        matrix_dot_safe(&x.view(), &y.view(),&mut c0.view_mut());
         matrix_dot_rayon(&x.view(), &y.view(),&mut c.view_mut());
 
         assert!(c == c0);
@@ -32,7 +32,7 @@ mod tests {
         let x = OwnedArray::random((10,5), Range::new(0.,10.));
         let y = OwnedArray::random((5,20), Range::new(0.,10.));
 
-        matrix_dot(&x.view(), &y.view(),&mut c0.view_mut());
+        matrix_dot_safe(&x.view(), &y.view(),&mut c0.view_mut());
         matrix_dot_rayon(&x.view(), &y.view(),&mut c.view_mut());
 
         assert!(c == c0);
@@ -49,7 +49,7 @@ mod tests {
         let x = OwnedArray::random((M,K), Range::new(0.,10.));
         let y = OwnedArray::random((K,N), Range::new(0.,10.));
         b.iter(|| {
-            matrix_dot(&x.view(), &y.view(),&mut c.view_mut())
+            matrix_dot_safe(&x.view(), &y.view(),&mut c.view_mut())
         });
     }
 

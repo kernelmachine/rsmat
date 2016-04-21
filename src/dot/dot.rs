@@ -15,35 +15,24 @@ pub type MatViewMut<'a,A> = ArrayViewMut<'a,A,(Ix,Ix)>;
 
 
 // basic matrix multiplication
-pub fn matrix_dot( left : &MatView<f64>, right: &MatView<f64>, init : &mut MatViewMut<f64>){
-    let m = left.shape()[0];
-    let n = right.shape()[1];
-    let res = left.to_owned().dot(&right.to_owned());
-    for ix in 0..m{
-        let mut init_row = init.row_mut(ix);
-        let res_row = res.row(ix);
-        for jx in 0..n{
-            unsafe{
-                let mut value = init_row.uget_mut(jx);
-                *value += *res_row.uget(jx);
-            }
-        }
-    }
+pub fn matrix_dot_safe( left : &MatView<f64>, right: &MatView<f64>, init : &mut MatViewMut<f64>){
+    let mut res = left.dot(right);
+    init.zip_mut_with(&mut res, |x,y| *x = *y)
 }
+
 
 
 
 pub const BLOCKSIZE : usize = 64;
 
 // parallelized matrix multiplication via rayon.
-pub fn matrix_dot_rayon(left: &MatView<f64>, right : &MatView<f64>,  init : &mut MatViewMut<f64>){
 
     let (m, k1) = left.dim();
     let (k2, n) = right.dim();
     assert_eq!(k1, k2);
 
     if m <= BLOCKSIZE && n <= BLOCKSIZE {
-        matrix_dot(left,right,init);
+        matrix_dot_safe(left,right,init);
         return;
     } else{
         if m > BLOCKSIZE {
@@ -73,7 +62,7 @@ pub fn matrix_dot_simple_parallel(left: &MatView<f64>, right : &MatView<f64>,  i
 
     assert_eq!(k1, k2);
     if m <= BLOCKSIZE && n <= BLOCKSIZE {
-        matrix_dot(left,right,init);
+        matrix_dot_safe(left,right,init);
         return;
     } else{
         if m > BLOCKSIZE {
