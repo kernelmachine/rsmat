@@ -26,6 +26,7 @@ pub fn matrix_dot_safe( left : &MatView<f64>, right: &MatView<f64>, init : &mut 
 pub const BLOCKSIZE : usize = 64;
 
 // parallelized matrix multiplication via rayon.
+pub fn matrix_dot_rayon(left: &MatView<f64>, right : &MatView<f64>,  init : &mut MatViewMut<f64>){
 
     let (m, k1) = left.dim();
     let (k2, n) = right.dim();

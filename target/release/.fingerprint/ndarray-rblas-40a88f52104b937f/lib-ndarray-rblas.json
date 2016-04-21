@@ -1,0 +1,1 @@
+{"rustc":8298405400342744119,"target":8217631567510212236,"profile":11411396542915816673,"local":{"variant":"Precalculated","fields":["0.1.1"]},"features":"None","deps":[["ndarray v0.5.0",12572714493004860764],["rblas v0.0.13",5552425602468641065]],"rustflags":[]}
