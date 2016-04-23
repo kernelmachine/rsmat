@@ -1,5 +1,7 @@
 #![feature(custom_derive)]
 #![feature(test)]
+#![feature(plugin)]
+#![plugin(clippy)]
 #[macro_use(s)]
 
 extern crate ndarray;

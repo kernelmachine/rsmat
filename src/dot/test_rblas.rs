@@ -4,18 +4,7 @@ use rblas::attribute::Transpose;
 
 use num::Float;
 
-use ndarray::{
-    OwnedArray,
-    ArrayView,
-    ArrayViewMut,
-    arr2,
-    Ix,
-    ShapeError
-};
-
-use ndarray_rand::RandomExt;
-use rand::distributions::Range;
-use test::Bencher;
+use ndarray::{OwnedArray, ArrayView, ArrayViewMut, arr2, Ix, ShapeError};
 
 use ndarray_rblas::AsBlas;
 
@@ -23,11 +12,18 @@ use ndarray_rblas::AsBlas;
 fn strided_matrix() {
     // smoke test, a matrix multiplication of uneven size
     let (n, m) = (45, 33);
-    let mut a = OwnedArray::linspace(0., ((n * m) - 1) as f32, n as usize * m as usize ).into_shape((n, m)).unwrap();
+    let mut a = OwnedArray::linspace(0., ((n * m) - 1) as f32, n as usize * m as usize)
+                    .into_shape((n, m))
+                    .unwrap();
     let mut b = OwnedArray::eye(m);
     let mut res = OwnedArray::zeros(a.dim());
-    Gemm::gemm(&1., Transpose::NoTrans, &a.blas(), Transpose::NoTrans, &b.blas(),
-               &0., &mut res.blas());
+    Gemm::gemm(&1.,
+               Transpose::NoTrans,
+               &a.blas(),
+               Transpose::NoTrans,
+               &b.blas(),
+               &0.,
+               &mut res.blas());
     assert_eq!(res, a);
 
     // matrix multiplication, strided
@@ -37,16 +33,26 @@ fn strided_matrix() {
     println!("{:?}", aprim.strides());
     let mut b = OwnedArray::eye(aprim.shape()[1]);
     let mut res = OwnedArray::zeros(aprim.dim());
-    Gemm::gemm(&1., Transpose::NoTrans, &aprim.blas(), Transpose::NoTrans, &b.blas(),
-               &0., &mut res.blas());
+    Gemm::gemm(&1.,
+               Transpose::NoTrans,
+               &aprim.blas(),
+               Transpose::NoTrans,
+               &b.blas(),
+               &0.,
+               &mut res.blas());
     assert_eq!(res, aprim);
 
     // Transposed matrix multiply
     let (np, mp) = aprim.dim();
     let mut res = OwnedArray::zeros((mp, np));
     let mut b = OwnedArray::eye(np);
-    Gemm::gemm(&1., Transpose::Trans, &aprim.blas(), Transpose::NoTrans, &b.blas(),
-               &0., &mut res.blas());
+    Gemm::gemm(&1.,
+               Transpose::Trans,
+               &aprim.blas(),
+               Transpose::NoTrans,
+               &b.blas(),
+               &0.,
+               &mut res.blas());
     let mut at = aprim.clone();
     at.swap_axes(0, 1);
     assert_eq!(at, res);
@@ -58,8 +64,13 @@ fn strided_matrix() {
     println!("{:?}", abis.strides());
     let mut b = OwnedArray::eye(abis.shape()[1]);
     let mut res = OwnedArray::zeros(abis.dim());
-    Gemm::gemm(&1., Transpose::NoTrans, &abis.blas(), Transpose::NoTrans, &b.blas(),
-               &0., &mut res.blas());
+    Gemm::gemm(&1.,
+               Transpose::NoTrans,
+               &abis.blas(),
+               Transpose::NoTrans,
+               &b.blas(),
+               &0.,
+               &mut res.blas());
     assert_eq!(res, abis);
 }
 
@@ -67,13 +78,18 @@ fn strided_matrix() {
 fn strided_view() {
     // smoke test, a matrix multiplication of uneven size
     let (n, m) = (45, 33);
-    let mut a = OwnedArray::linspace(0., ((n * m) - 1) as f32, n as usize * m as usize ).into_shape((n, m)).unwrap();
+    let mut a = OwnedArray::linspace(0., ((n * m) - 1) as f32, n as usize * m as usize)
+                    .into_shape((n, m))
+                    .unwrap();
     let mut b = OwnedArray::eye(m);
     let mut res = OwnedArray::zeros(a.dim());
     Gemm::gemm(&1.,
-               Transpose::NoTrans, &a.blas_view_mut_checked().unwrap(),
-               Transpose::NoTrans, &b.blas_view_mut_checked().unwrap(),
-               &0., &mut res.blas_view_mut_checked().unwrap());
+               Transpose::NoTrans,
+               &a.blas_view_mut_checked().unwrap(),
+               Transpose::NoTrans,
+               &b.blas_view_mut_checked().unwrap(),
+               &0.,
+               &mut res.blas_view_mut_checked().unwrap());
     assert_eq!(res, a);
 
     // matrix multiplication, strided
@@ -81,9 +97,12 @@ fn strided_view() {
     let mut b = OwnedArray::eye(aprim.shape()[1]);
     let mut res = OwnedArray::zeros(aprim.dim());
     Gemm::gemm(&1.,
-               Transpose::NoTrans, &aprim.bv(),
-               Transpose::NoTrans, &b.blas(),
-               &0., &mut res.blas());
+               Transpose::NoTrans,
+               &aprim.bv(),
+               Transpose::NoTrans,
+               &b.blas(),
+               &0.,
+               &mut res.blas());
     assert_eq!(res, aprim);
 
     // test out with matrices where lower axis is strided but has length 1
@@ -93,9 +112,12 @@ fn strided_view() {
     let mut res = arr2(&[[0., 0., 0.]]);
     res.swap_axes(0, 1);
     Gemm::gemm(&1.,
-               Transpose::NoTrans, &a3.bvm(),
-               Transpose::NoTrans, &b.blas(),
-               &0., &mut res.bvm());
+               Transpose::NoTrans,
+               &a3.bvm(),
+               Transpose::NoTrans,
+               &b.blas(),
+               &0.,
+               &mut res.bvm());
     assert_eq!(res, a3);
 }
 
@@ -127,9 +149,11 @@ fn as_blas() {
 }
 
 type Ix2 = (Ix, Ix);
-fn dot<F>(a: ArrayView<F, Ix2>, b: ArrayView<F, Ix2>,
-          c: &mut ArrayViewMut<F, Ix2>) -> Result<(), ShapeError>
-    where F: Gemm + Float,
+fn dot<F>(a: ArrayView<F, Ix2>,
+          b: ArrayView<F, Ix2>,
+          c: &mut ArrayViewMut<F, Ix2>)
+          -> Result<(), ShapeError>
+    where F: Gemm + Float
 {
     let at = Transpose::NoTrans;
     let bt = Transpose::NoTrans;
@@ -137,17 +161,13 @@ fn dot<F>(a: ArrayView<F, Ix2>, b: ArrayView<F, Ix2>,
     let ba = try!(a.blas_view_checked());
     let bb = try!(b.blas_view_checked());
     let mut bc = try!(c.blas_view_mut_checked());
-    F::gemm(&F::one(),
-            at, &ba,
-            bt, &bb,
-            &F::zero(), &mut bc);
+    F::gemm(&F::one(), at, &ba, bt, &bb, &F::zero(), &mut bc);
     Ok(())
 }
 
 #[test]
 fn test_dot() {
-    let mut a = arr2(&[[1., 2.],
-                       [0., 3.]]);
+    let mut a = arr2(&[[1., 2.], [0., 3.]]);
 
     let b = a.clone();
     let mut res = a.clone();
@@ -161,18 +181,4 @@ fn test_dot() {
 
     let result = dot(a.view(), b.view(), &mut res.view_mut());
     assert!(result.is_err());
-}
-
-pub const M : usize = 128;
-pub const K : usize = 100;
-pub const N : usize = 128;
-
-#[bench]
-fn bench_dot_rblas(b: &mut Bencher) {
-    let mut c = OwnedArray::zeros((M,N));
-    let x = OwnedArray::random((M,K), Range::new(0.,10.));
-    let y = OwnedArray::random((K,N), Range::new(0.,10.));
-    b.iter(|| {
-        dot(x.view(), y.view(),&mut c.view_mut())
-    });
 }
